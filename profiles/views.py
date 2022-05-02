@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from .models import Profile
+from .models import *
 from .forms import *
+from django.views.generic import UpdateView, DeleteView
 
 
 def my_profile_view(request):
@@ -20,3 +21,4 @@ def my_profile_view(request):
     }
 
     return render(request, 'profiles/myprofile.html', context)
+
