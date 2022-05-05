@@ -6,6 +6,7 @@ from django.urls import reverse
 from .utils import get_random_code
 from django.template.defaultfilters import slugify
 
+
 class ProfileManager(models.Manager):
 
     def get_all_profiles_to_invite(self, sender):
@@ -30,6 +31,11 @@ class ProfileManager(models.Manager):
 
     def get_all_profiles(self, me):
         profiles = Profile.objects.all().exclude(user=me)
+        return profiles
+
+    def get_friends(self, me):
+        friends = Relationship.objects.all()
+        return friends
 
 
 class Profile(models.Model):
@@ -55,6 +61,9 @@ class Profile(models.Model):
 
     def get_friends(self):
         return self.friends.all()
+
+    def get_friends_no(self):
+        return self.friends.all().count()
 
     def get_friends_number(self):
         return self.friends.all().count()
@@ -111,7 +120,7 @@ STATUS_CHOICES = (
 
 
 class RelationshipManager(models.Manager):
-    def invitations_received(self, receiver):
+    def invatations_received(self, receiver):
         qs = Relationship.objects.filter(receiver=receiver, status='send')
         return qs
 

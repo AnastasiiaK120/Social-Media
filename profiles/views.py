@@ -1,12 +1,16 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Profile, Relationship
+from .forms import ProfileModelForm
+from django.views.generic import ListView, DetailView
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import *
-from .forms import *
-from django.views.generic import UpdateView, DeleteView, ListView, DetailView
-from django.contrib.auth.models import User
 
 
+# Create your views here.
+
+@login_required
 def my_profile_view(request):
     profile = Profile.objects.get(user=request.user)
     form = ProfileModelForm(request.POST or None, request.FILES or None, instance=profile)
@@ -26,16 +30,17 @@ def my_profile_view(request):
     return render(request, 'profiles/myprofile.html', context)
 
 
+@login_required
 def invites_received_view(request):
     profile = Profile.objects.get(user=request.user)
-    qs = Relationship.objects.invitations_received(profile)
+    qs = Relationship.objects.invatations_received(profile)
     results = list(map(lambda x: x.sender, qs))
     is_empty = False
     if len(results) == 0:
         is_empty = True
 
     context = {
-        'qs': qs,
+        'qs': results,
         'is_empty': is_empty,
     }
 
@@ -43,8 +48,8 @@ def invites_received_view(request):
 
 
 @login_required
-def accept_invitation(request):
-    if request.method=="POST":
+def accept_invatation(request):
+    if request.method == "POST":
         pk = request.POST.get('profile_pk')
         sender = Profile.objects.get(pk=pk)
         receiver = Profile.objects.get(user=request.user)
@@ -56,8 +61,8 @@ def accept_invitation(request):
 
 
 @login_required
-def reject_invitation(request):
-    if request.method=="POST":
+def reject_invatation(request):
+    if request.method == "POST":
         pk = request.POST.get('profile_pk')
         receiver = Profile.objects.get(user=request.user)
         sender = Profile.objects.get(pk=pk)
@@ -66,18 +71,7 @@ def reject_invitation(request):
     return redirect('profiles:my-invites-view')
 
 
-
-def profiles_list_view(request):
-    user = request.user
-    qs = Profile.objects.get_all_profiles(user)
-
-    context = {
-        'qs': qs
-    }
-
-    return render(request, 'profiles/profile_list.html', context)
-
-
+@login_required
 def invite_profiles_list_view(request):
     user = request.user
     qs = Profile.objects.get_all_profiles_to_invite(user)
@@ -85,6 +79,7 @@ def invite_profiles_list_view(request):
     context = {'qs': qs}
 
     return render(request, 'profiles/to_invite_list.html', context)
+
 
 @login_required
 def profiles_list_view(request):
@@ -94,6 +89,7 @@ def profiles_list_view(request):
     context = {'qs': qs}
 
     return render(request, 'profiles/profile_list.html', context)
+
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
     model = Profile
@@ -122,9 +118,11 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         context['len_posts'] = True if len(self.get_object().get_all_authors_posts()) > 0 else False
         return context
 
+
 class ProfileListView(LoginRequiredMixin, ListView):
     model = Profile
     template_name = 'profiles/profile_list.html'
+
     # context_object_name = 'qs'
 
     def get_queryset(self):
@@ -152,7 +150,8 @@ class ProfileListView(LoginRequiredMixin, ListView):
         return context
 
 
-def send_invitation(request):
+@login_required
+def send_invatation(request):
     if request.method == 'POST':
         pk = request.POST.get('profile_pk')
         user = request.user
@@ -160,6 +159,7 @@ def send_invitation(request):
         receiver = Profile.objects.get(pk=pk)
 
         rel = Relationship.objects.create(sender=sender, receiver=receiver, status='send')
+
         return redirect(request.META.get('HTTP_REFERER'))
     return redirect('profiles:my-profile-view')
 
@@ -178,4 +178,3 @@ def remove_from_friends(request):
         rel.delete()
         return redirect(request.META.get('HTTP_REFERER'))
     return redirect('profiles:my-profile-view')
-
