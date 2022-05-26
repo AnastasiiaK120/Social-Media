@@ -65,9 +65,6 @@ class Profile(models.Model):
     def get_friends_no(self):
         return self.friends.all().count()
 
-    def get_friends_number(self):
-        return self.friends.all().count()
-
     def get_posts_no(self):
         return self.posts.all().count()
 
@@ -97,7 +94,7 @@ class Profile(models.Model):
         self.__initial_first_name = self.first_name
         self.__initial_last_name = self.last_name
 
-    def save(self, *args, **kwargs): #For the same first and last names
+    def save(self, *args, **kwargs):
         ex = False
         to_slug = self.slug
         if self.first_name != self.__initial_first_name or self.last_name != self.__initial_last_name or self.slug == "":

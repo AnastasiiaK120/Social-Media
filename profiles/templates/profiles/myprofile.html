@@ -11,6 +11,7 @@ my profile
 <div class="ui modal mymodal">
   <i class="close icon"></i>
   <div class="header">
+
     Update your Profile
   </div>
   <div class="image content">
@@ -44,8 +45,8 @@ my profile
         <div class='row'>
             <div class='six wide column'>
                 <img class="ui medium rounded image" src={{profile.avatar.url}}>
-                <div class="row mt-5">
-                    <button class='ui secondary button' id='modal-btn'>Update your profile</button>
+                <div class="row mt-5"> <a href="{% url 'profiles:update_profile' profile.id %}">
+                    <button class='ui secondary button' id='modal-btn'>Update your profile</button></a>
                 </div>
             </div>
             <div class="ten wide column">

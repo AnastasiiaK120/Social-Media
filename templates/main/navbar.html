@@ -4,6 +4,9 @@
 {% url 'profiles:my-invites-view' as path_to_my_invites %}
 {% url 'profiles:invite-profiles-view' as path_to_invites %}
 {% url 'profiles:all-profiles-view' as path_to_all_profiles %}
+{% url 'profiles:friends' as path_to_all_friends %}
+{% url 'notifications:show-notifications' as path_to_all_notifications %}
+
 
 <div class="ui purple inverted menu nav mb-7">
   <div class="ui container">
@@ -14,6 +17,12 @@
     <a href="{{path_to_posts}}" class="{% if request.path == path_to_posts %}active{% endif %} item">
         Board
     </a>
+      <a href="{{path_to_all_friends}}" class="{% if request.path == path_to_all_friends %}active{% endif %} item">
+        Friends
+    </a>
+      <a href="{{path_to_all_notifications}}" class="{% if request.path == path_to_all_notifications %}active{% endif %} item">
+          Notifications <span class="new badge">{{count_notifications}}</span></a>
+
     {% endif %}
 
     <div class="right menu">
@@ -35,7 +44,7 @@
              </div>
         </div>
              <div class="item">
-              <form action="" method="GET">
+              <form action="{% url 'profiles:search_for_user' %}" method="GET">
                 <div class="ui action left icon input">
                 <input class="prompt" type="text" name='q' placeholder="name of a friend...">
                 <i class="search icon"></i>
@@ -49,11 +58,11 @@
                  {{ request.user }}
             </a>
 
-            <a href="" class="ui item">
+            <a href="{% url 'account_logout' %}" class="ui item">
                 Logout
             </a>
         {% else %}
-        <a href="" class="ui item">
+        <a href="{% url 'account_login' %}" class="ui item">
                 Login
             </a>
         {% endif %}

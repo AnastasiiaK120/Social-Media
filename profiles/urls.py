@@ -5,7 +5,10 @@ app_name = 'profiles'
 
 urlpatterns = [
     path('', ProfileListView.as_view(), name='all-profiles-view'),
+    path('search', search_profile, name='search_for_user'),
     path('myprofile/', my_profile_view, name='my-profile-view'),
+    path('myprofile/<int:id>/update/', update_profile, name='update_profile'),
+    path('friends/', my_friends_view, name='friends'),
     path('my-invites/', invites_received_view, name='my-invites-view'),
     path('to-invite/', invite_profiles_list_view, name='invite-profiles-view'),
     path('send-invite/', send_invatation, name='send-invite'),

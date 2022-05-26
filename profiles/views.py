@@ -1,6 +1,7 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, Relationship
-from .forms import ProfileModelForm
+from .forms import *
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -178,3 +179,68 @@ def remove_from_friends(request):
         rel.delete()
         return redirect(request.META.get('HTTP_REFERER'))
     return redirect('profiles:my-profile-view')
+
+
+@login_required
+def update_profile(request, id):
+    obj = get_object_or_404(Profile, id=id, user=request.user)
+
+    form = ProfileUpdateForm(request.POST or None, instance=obj)
+    context = {'form': form}
+
+    if form.is_valid():
+        obj = form.save(commit=False)
+
+        obj.save()
+        return redirect('/profiles/myprofile/')
+
+    else:
+        context = {'form': form,
+                   'error': 'The form was not updated successfully. Please enter in a title and content'}
+        return render(request, 'profiles/update_profile.html', context)
+
+
+def search_profile(request):
+    if 'q' in request.GET:
+        q =request.GET['q']
+        pr = Profile.objects.filter(first_name__icontains=q)
+    else:
+
+        pr = Profile.objects.all()
+    context = {
+        'pr': pr
+    }
+    return render(request, 'main/navbar.html', context)
+
+class FriendsListView(LoginRequiredMixin, ListView):
+    model = Profile
+    template_name = 'profiles/profile_list.html'
+    #us = Profile.friends.all()
+
+    # context_object_name = 'qs'
+
+    def get_queryset(self, request):
+        qs = Profile.friends.all(user=request.user)
+        return qs
+
+
+@login_required
+def my_friends_view(request):
+    profile = Profile.objects.get(user=request.user)
+    form = ProfileModelForm(request.POST or None, request.FILES or None, instance=profile)
+    confirm = False
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            confirm = True
+
+    context = {
+        'profile': profile,
+        'form': form,
+        'confirm': confirm,
+    }
+
+    return render(request, 'profiles/my_friends.html', context)
+
+

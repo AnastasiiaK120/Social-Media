@@ -44,9 +44,13 @@ INSTALLED_APPS = [
 
     'posts',
     'profiles',
+    'notifications',
+    'crispy_forms',
 ]
 
 SITE_ID = 1
+
+
 
 #LOGIN_URL = '/admin/'
 LOGIN_REDIRECT_URL = '/posts'
